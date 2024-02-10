@@ -1,5 +1,6 @@
 package com.souzatech.dscatalogapi.services;
 
+import com.souzatech.dscatalogapi.dto.CategoryDto;
 import com.souzatech.dscatalogapi.entities.Category;
 import com.souzatech.dscatalogapi.repositories.CategoryRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +16,10 @@ public class CategoryService {
     private CategoryRepository repository;
 
     @Transactional(readOnly = true)
-    public List<Category> findAll(){
-        return repository.findAll();
+    public List<CategoryDto> findAll(){
+        List<Category> list = repository.findAll();
+        return list.stream()
+                .map(CategoryDto::new)
+                .toList();
     }
 }
