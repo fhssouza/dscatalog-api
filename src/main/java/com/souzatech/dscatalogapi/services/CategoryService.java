@@ -3,10 +3,13 @@ package com.souzatech.dscatalogapi.services;
 import com.souzatech.dscatalogapi.dto.CategoryDto;
 import com.souzatech.dscatalogapi.entities.Category;
 import com.souzatech.dscatalogapi.repositories.CategoryRepository;
+import com.souzatech.dscatalogapi.services.exceptions.DatabaseException;
 import com.souzatech.dscatalogapi.services.exceptions.ResourceNotFoundException;
 import jakarta.persistence.EntityNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -49,6 +52,18 @@ public class CategoryService {
             return new CategoryDto(entity);
         } catch (EntityNotFoundException e) {
             throw new ResourceNotFoundException("Id no found " + id);
+        }
+    }
+
+    @Transactional(propagation = Propagation.SUPPORTS)
+    public void delete(Long id) {
+        if (!repository.existsById(id)){
+            throw new ResourceNotFoundException("Recurso não encontrado");
+        }
+        try{
+            repository.deleteById(id);
+        }catch (DataIntegrityViolationException e){
+            throw new DatabaseException("Falha da integridade referencial");
         }
     }
 }
